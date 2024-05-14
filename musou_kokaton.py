@@ -140,14 +140,14 @@ class Beam(pg.sprite.Sprite):
     """
     ビームに関するクラス
     """
-    def __init__(self, bird: Bird):
+    def __init__(self, bird: Bird,angle_C=0):
         """
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん
         """
         super().__init__()
         self.vx, self.vy = bird.dire
-        angle = math.degrees(math.atan2(-self.vy, self.vx))
+        angle = math.degrees(math.atan2(-self.vy, self.vx))+angle_C
         self.image = pg.transform.rotozoom(pg.image.load(f"fig/beam.png"), angle, 2.0)
         self.vx = math.cos(math.radians(angle))
         self.vy = -math.sin(math.radians(angle))
@@ -155,7 +155,6 @@ class Beam(pg.sprite.Sprite):
         self.rect.centery = bird.rect.centery+bird.rect.height*self.vy
         self.rect.centerx = bird.rect.centerx+bird.rect.width*self.vx
         self.speed = 10
-
     def update(self):
         """
         ビームを速度ベクトルself.vx, self.vyに基づき移動させる
@@ -164,6 +163,22 @@ class Beam(pg.sprite.Sprite):
         self.rect.move_ip(self.speed*self.vx, self.speed*self.vy)
         if check_bound(self.rect) != (True, True):
             self.kill()
+
+
+
+class NeoBeam: 
+    """
+    ビームを複数うてる様になるクラス
+    """
+    def __init__(self,bird,num):
+        self.bird=bird
+        self.num=num
+    def gen_beams(self):
+        s=[]
+        for angle in range(-50,51,100//self.num-1): 
+            #self.image = pg.transform.rotozoom(pg.image.load(f"fig/beam.png"), angle, 2.0)
+            s.append(Beam(self.bird,angle))
+        return s
 
 
 class Explosion(pg.sprite.Sprite):
@@ -249,10 +264,13 @@ def main():
 
     bird = Bird(3, (900, 400))
     bombs = pg.sprite.Group()
+    key_lst = pg.key.get_pressed()
+
+    #s=pg.sprite.Group()
     beams = pg.sprite.Group()
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
-
+    num=5
     tmr = 0
     clock = pg.time.Clock()
     while True:
@@ -260,7 +278,12 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
-            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+            if event.type==pg.KEYDOWN and key_lst[pg.K_LSHIFT] and event.key==pg.K_SPACE: 
+                    print("ok")
+                    neobeam=NeoBeam(bird,num)
+                    for beam in neobeam.gen_beams():
+                        beams.add(beam)
+            elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beams.add(Beam(bird))
         screen.blit(bg_img, [0, 0])
 
@@ -270,8 +293,9 @@ def main():
         for emy in emys:
             if emy.state == "stop" and tmr%emy.interval == 0:
                 # 敵機が停止状態に入ったら，intervalに応じて爆弾投下
+                #neobeam=NeoBeam(bird,num)
+                #beams.add(neobeam.gen_beams(bird,num))
                 bombs.add(Bomb(emy, bird))
-
         for emy in pg.sprite.groupcollide(emys, beams, True, True).keys():
             exps.add(Explosion(emy, 100))  # 爆発エフェクト
             score.value += 10  # 10点アップ
