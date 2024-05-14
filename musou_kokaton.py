@@ -277,7 +277,7 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
-            if event.type==pg.KEYDOWN and key_lst[pg.K_LSHIFT] and event.key==pg.K_SPACE: 
+            if event.type==pg.KEYDOWN and key_lst[pg.K_LSHIFT] and event.key==pg.K_SPACE: #左シフトとスペースキーを押したら
                     neobeam=NeoBeam(bird,num)
                     for beam in neobeam.gen_beams():
                         beams.add(beam)
