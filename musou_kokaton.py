@@ -176,7 +176,6 @@ class NeoBeam:
     def gen_beams(self):
         s=[]
         for angle in range(-50,51,100//self.num-1): 
-            #self.image = pg.transform.rotozoom(pg.image.load(f"fig/beam.png"), angle, 2.0)
             s.append(Beam(self.bird,angle))
         return s
 
@@ -266,7 +265,7 @@ def main():
     bombs = pg.sprite.Group()
     key_lst = pg.key.get_pressed()
 
-    #s=pg.sprite.Group()
+   
     beams = pg.sprite.Group()
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
@@ -279,7 +278,6 @@ def main():
             if event.type == pg.QUIT:
                 return 0
             if event.type==pg.KEYDOWN and key_lst[pg.K_LSHIFT] and event.key==pg.K_SPACE: 
-                    print("ok")
                     neobeam=NeoBeam(bird,num)
                     for beam in neobeam.gen_beams():
                         beams.add(beam)
@@ -293,8 +291,7 @@ def main():
         for emy in emys:
             if emy.state == "stop" and tmr%emy.interval == 0:
                 # 敵機が停止状態に入ったら，intervalに応じて爆弾投下
-                #neobeam=NeoBeam(bird,num)
-                #beams.add(neobeam.gen_beams(bird,num))
+                
                 bombs.add(Bomb(emy, bird))
         for emy in pg.sprite.groupcollide(emys, beams, True, True).keys():
             exps.add(Explosion(emy, 100))  # 爆発エフェクト
